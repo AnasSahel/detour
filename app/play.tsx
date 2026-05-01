@@ -31,11 +31,20 @@ export default function Play() {
   const currentOutcomes = useGame((s) => s.currentOutcomes);
   const recordOutcome = useGame((s) => s.recordOutcome);
   const endRound = useGame((s) => s.endRound);
+  const pauseRound = useGame((s) => s.pauseRound);
+  const consumePausedSeconds = useGame((s) => s.consumePausedSeconds);
 
   const palette = paletteFor(currentTeamIndex);
-  const [secondsLeft, setSecondsLeft] = useState<number>(settings.roundDurationSec);
+  const [secondsLeft, setSecondsLeft] = useState<number>(
+    () => useGame.getState().pausedSecondsLeft ?? settings.roundDurationSec
+  );
+  const secondsLeftRef = useRef(secondsLeft);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const progress = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    secondsLeftRef.current = secondsLeft;
+  }, [secondsLeft]);
 
   const roundScore = computeRoundScore(currentOutcomes);
 
@@ -52,14 +61,19 @@ export default function Play() {
     );
   }, [currentOutcomes.length, scoreScale]);
 
-  // Reset timer + animation when entering a new round
+  // Reset timer + animation when entering a round (start fresh, or resume paused)
   useEffect(() => {
     if (status !== "playing") return;
-    setSecondsLeft(settings.roundDurationSec);
-    progress.setValue(1);
+    const startFrom =
+      useGame.getState().pausedSecondsLeft ?? settings.roundDurationSec;
+    consumePausedSeconds();
+    setSecondsLeft(startFrom);
+    secondsLeftRef.current = startFrom;
+    const initialProgress = startFrom / settings.roundDurationSec;
+    progress.setValue(initialProgress);
     Animated.timing(progress, {
       toValue: 0,
-      duration: settings.roundDurationSec * 1000,
+      duration: startFrom * 1000,
       useNativeDriver: false,
     }).start();
     intervalRef.current = setInterval(() => {
@@ -67,8 +81,15 @@ export default function Play() {
     }, 1000);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      // Persist remaining time only if the round was interrupted (not finished)
+      if (
+        secondsLeftRef.current > 0 &&
+        useGame.getState().status === "playing"
+      ) {
+        pauseRound(secondsLeftRef.current);
+      }
     };
-  }, [status, settings.roundDurationSec, progress]);
+  }, [status, settings.roundDurationSec, progress, consumePausedSeconds, pauseRound]);
 
   // Side effects driven by the timer
   useEffect(() => {

@@ -25,6 +25,7 @@ type GameState = {
   currentCard: Card | null;
   currentOutcomes: RoundOutcome[];
   winners: Team[];
+  pausedSecondsLeft: number | null;
 
   startGame: (input: {
     cards: Card[];
@@ -37,6 +38,8 @@ type GameState = {
   finalizeRound: (adjusted: RoundOutcome[]) => void;
   startNextRound: () => void;
   abandonGame: () => void;
+  pauseRound: (secondsLeft: number) => void;
+  consumePausedSeconds: () => void;
 };
 
 const emptyState = {
@@ -49,6 +52,7 @@ const emptyState = {
   currentCard: null as Card | null,
   currentOutcomes: [] as RoundOutcome[],
   winners: [] as Team[],
+  pausedSecondsLeft: null as number | null,
 };
 
 export const useGame = create<GameState>()((set, get) => ({
@@ -97,7 +101,7 @@ export const useGame = create<GameState>()((set, get) => ({
   },
 
   endRound: () => {
-    set({ status: "round-recap" });
+    set({ status: "round-recap", pausedSecondsLeft: null });
   },
 
   finalizeRound: (adjusted) => {
@@ -124,6 +128,7 @@ export const useGame = create<GameState>()((set, get) => ({
       status: "playing",
       deck: draw?.nextDeck ?? refilled,
       currentCard: draw?.card ?? null,
+      pausedSecondsLeft: null,
     });
   },
 
@@ -141,5 +146,13 @@ export const useGame = create<GameState>()((set, get) => ({
 
   abandonGame: () => {
     set({ ...emptyState, settings: get().settings });
+  },
+
+  pauseRound: (secondsLeft) => {
+    set({ pausedSecondsLeft: secondsLeft });
+  },
+
+  consumePausedSeconds: () => {
+    set({ pausedSecondsLeft: null });
   },
 }));
