@@ -1,25 +1,34 @@
 import { useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import wordBank from "@/data/words.fr.json";
-import type { Card, RoundDuration, WordBank } from "@/lib/game";
+import type { Card, ForbiddenCount, RoundDuration, WordBank } from "@/lib/game";
 import { TEAM_PALETTES } from "@/lib/teams";
 import { useGame } from "@/store/game";
 import { useSettings } from "@/store/settings";
 
 const DURATIONS: RoundDuration[] = [30, 60, 90];
 const TARGETS = [15, 30, 50];
+const FORBIDDEN_COUNTS: ForbiddenCount[] = [3, 4, 5];
 
 export default function Setup() {
   const router = useRouter();
-  const { roundDurationSec, targetScore, teamNames, setRoundDuration, setTargetScore, setTeamName } =
-    useSettings();
+  const {
+    roundDurationSec,
+    targetScore,
+    forbiddenCount,
+    teamNames,
+    setRoundDuration,
+    setTargetScore,
+    setForbiddenCount,
+    setTeamName,
+  } = useSettings();
   const startGame = useGame((s) => s.startGame);
 
   const onStart = () => {
     const cards = (wordBank as WordBank).cards as Card[];
     startGame({
       cards,
-      settings: { roundDurationSec, targetScore },
+      settings: { roundDurationSec, targetScore, forbiddenCount },
       teamNames,
     });
     router.replace("/ready");
@@ -55,6 +64,14 @@ export default function Setup() {
           options={TARGETS.map((t) => ({ value: t, label: `${t}` }))}
           value={targetScore}
           onChange={setTargetScore}
+        />
+      </Section>
+
+      <Section title="Mots interdits affichés">
+        <Segmented
+          options={FORBIDDEN_COUNTS.map((c) => ({ value: c, label: `${c}` }))}
+          value={forbiddenCount}
+          onChange={setForbiddenCount}
         />
       </Section>
 

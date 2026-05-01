@@ -57,7 +57,7 @@ const emptyState = {
 
 export const useGame = create<GameState>()((set, get) => ({
   ...emptyState,
-  settings: { roundDurationSec: 60, targetScore: 30 },
+  settings: { roundDurationSec: 60, targetScore: 30, forbiddenCount: 5 },
 
   startGame: ({ cards, settings, teamNames }) => {
     const deck = createDeck(cards);

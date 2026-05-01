@@ -28,10 +28,12 @@ export type Team = {
 };
 
 export type RoundDuration = 30 | 60 | 90;
+export type ForbiddenCount = 3 | 4 | 5;
 
 export type GameSettings = {
   roundDurationSec: RoundDuration;
   targetScore: number;
+  forbiddenCount: ForbiddenCount;
 };
 
 export type OutcomeKind = "guessed" | "skipped" | "fault";

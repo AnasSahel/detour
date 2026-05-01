@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Animated, Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Reanimated, {
@@ -12,7 +12,7 @@ import Reanimated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { computeRoundScore } from "@/lib/game";
+import { computeRoundScore, shuffle } from "@/lib/game";
 import { paletteFor } from "@/lib/teams";
 import { useGame } from "@/store/game";
 
@@ -35,6 +35,12 @@ export default function Play() {
   const consumePausedSeconds = useGame((s) => s.consumePausedSeconds);
 
   const palette = paletteFor(currentTeamIndex);
+
+  const displayedForbidden = useMemo(() => {
+    if (!currentCard) return [];
+    return shuffle(currentCard.forbidden).slice(0, settings.forbiddenCount);
+  }, [currentCard?.id, settings.forbiddenCount]);
+
   const [secondsLeft, setSecondsLeft] = useState<number>(
     () => useGame.getState().pausedSecondsLeft ?? settings.roundDurationSec
   );
@@ -257,7 +263,7 @@ export default function Play() {
             <View style={styles.divider} />
             <Text style={styles.forbiddenLabel}>Interdits</Text>
             <View style={styles.forbiddenList}>
-              {currentCard.forbidden.map((w) => (
+              {displayedForbidden.map((w) => (
                 <Text key={w} style={styles.forbiddenItem}>
                   • {w}
                 </Text>
