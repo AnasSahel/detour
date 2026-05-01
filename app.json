@@ -31,6 +31,13 @@
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2e63728c-9c66-4d75-bfc5-a1715dfa511b"
+      }
+    },
+    "owner": "anas-s"
   }
 }
