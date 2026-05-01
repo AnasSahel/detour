@@ -24,7 +24,7 @@
   "submit": {
     "production": {
       "ios": {
-        "appleTeamId": "REPLACE_WITH_APPLE_TEAM_ID",
+        "appleTeamId": "7FYF8X73WM",
         "ascAppId": "REPLACE_WITH_APP_STORE_CONNECT_APP_ID"
       }
     }
