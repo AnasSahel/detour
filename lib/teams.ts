@@ -7,10 +7,10 @@ export type TeamPalette = {
 
 export const TEAM_PALETTES: TeamPalette[] = [
   {
-    primary: "#dc2626",
-    soft: "#fee2e2",
+    primary: "#7c3aed",
+    soft: "#ede9fe",
     textOnPrimary: "#ffffff",
-    textOnSoft: "#7f1d1d",
+    textOnSoft: "#5b21b6",
   },
   {
     primary: "#2563eb",
