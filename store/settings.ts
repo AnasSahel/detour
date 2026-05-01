@@ -20,7 +20,7 @@ export const useSettings = create<SettingsState>()(
       roundDurationSec: 60,
       targetScore: 30,
       forbiddenCount: 5,
-      teamNames: ["Équipe violette", "Équipe bleue"],
+      teamNames: ["Équipe noire", "Équipe bleue"],
       setRoundDuration: (d) => set({ roundDurationSec: d }),
       setTargetScore: (n) => set({ targetScore: Math.max(5, Math.min(100, n)) }),
       setForbiddenCount: (n) => set({ forbiddenCount: n }),
@@ -34,7 +34,7 @@ export const useSettings = create<SettingsState>()(
     {
       name: "detour:settings",
       storage: createJSONStorage(() => AsyncStorage),
-      version: 3,
+      version: 4,
       migrate: (persistedState, version) => {
         let state = persistedState as Partial<SettingsState> & Record<string, unknown>;
         if (version < 2) {
@@ -44,6 +44,12 @@ export const useSettings = create<SettingsState>()(
           const names = state.teamNames as [string, string] | undefined;
           if (names && names[0] === "Équipe rouge") {
             state = { ...state, teamNames: ["Équipe violette", names[1]] };
+          }
+        }
+        if (version < 4) {
+          const names = state.teamNames as [string, string] | undefined;
+          if (names && names[0] === "Équipe violette") {
+            state = { ...state, teamNames: ["Équipe noire", names[1]] };
           }
         }
         return state as SettingsState;
