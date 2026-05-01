@@ -1,7 +1,10 @@
+import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef } from "react";
+import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
+import ConfettiCannon from "react-native-confetti-cannon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { paletteFor } from "@/lib/teams";
+import { paletteFor, TEAM_PALETTES } from "@/lib/teams";
 import { useGame } from "@/store/game";
 
 export default function Scoreboard() {
@@ -13,6 +16,29 @@ export default function Scoreboard() {
 
   const winnerIds = new Set(winners.map((w) => w.id));
   const tied = winners.length > 1;
+  const { width: screenWidth } = Dimensions.get("window");
+
+  const cannonLeft = useRef<ConfettiCannon>(null);
+  const cannonRight = useRef<ConfettiCannon>(null);
+
+  useEffect(() => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    const t = setTimeout(() => {
+      cannonLeft.current?.start();
+      cannonRight.current?.start();
+    }, 200);
+    return () => clearTimeout(t);
+  }, []);
+
+  const winnerIdx = teams.findIndex((t) => winnerIds.has(t.id));
+  const confettiColors = tied
+    ? [TEAM_PALETTES[0].primary, TEAM_PALETTES[1].primary, "#fbbf24", "#ffffff"]
+    : [
+        TEAM_PALETTES[winnerIdx]?.primary ?? "#16a34a",
+        "#fbbf24",
+        "#16a34a",
+        "#ffffff",
+      ];
 
   const onRestart = () => {
     abandon();
@@ -83,6 +109,27 @@ export default function Scoreboard() {
           <Text style={styles.btnGhostText}>Retour à l&apos;accueil</Text>
         </Pressable>
       </View>
+
+      <ConfettiCannon
+        ref={cannonLeft}
+        count={120}
+        origin={{ x: -20, y: 0 }}
+        autoStart={false}
+        fadeOut
+        explosionSpeed={350}
+        fallSpeed={2800}
+        colors={confettiColors}
+      />
+      <ConfettiCannon
+        ref={cannonRight}
+        count={120}
+        origin={{ x: screenWidth + 20, y: 0 }}
+        autoStart={false}
+        fadeOut
+        explosionSpeed={350}
+        fallSpeed={2800}
+        colors={confettiColors}
+      />
     </View>
   );
 }
