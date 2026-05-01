@@ -13,6 +13,7 @@ export default function RootLayout() {
             headerStyle: { backgroundColor: "#fff" },
             headerTitleStyle: { fontWeight: "700" },
             headerShadowVisible: false,
+            headerBackButtonDisplayMode: "minimal",
             contentStyle: { backgroundColor: "#fff" },
           }}
         >
